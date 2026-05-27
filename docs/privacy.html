@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>개인정보 처리방침 (Privacy Policy) - 별자리 탐험 (Stargaze Explorer)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --space-black: #03030F;
+      --cosmic-blue: #0A0E29;
+      --cosmic-slate: #121B45;
+      --cosmic-cyan: #5CFFFD;
+      --star-white: #FFFFFF;
+      --text-secondary: #B0B7D6;
+      --glass-bg: rgba(10, 14, 41, 0.65);
+      --glass-border: rgba(92, 255, 253, 0.15);
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+      background-color: var(--space-black);
+      color: var(--star-white);
+      line-height: 1.8;
+      padding: 60px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 32px 0 rgba(3, 3, 15, 0.37);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .header-logo {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, var(--cosmic-cyan), #7F5CFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--glass-border);
+      padding-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--cosmic-cyan);
+      margin-top: 30px;
+      margin-bottom: 12px;
+    }
+
+    p, li {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      margin-left: 24px;
+      margin-bottom: 20px;
+    }
+
+    .lang-btn {
+      display: inline-block;
+      background: var(--cosmic-slate);
+      color: var(--star-white);
+      border: 1px solid var(--glass-border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--cosmic-cyan);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-logo">🌌 Stargaze Explorer</div>
+    
+    <button class="lang-btn" onclick="toggleLanguage()">English Policy</button>
+
+    <!-- KOREAN POLICY -->
+    <div id="policy-ko">
+      <h1>개인정보 처리방침</h1>
+      <p>본 개인정보 처리방침은 '별자리 탐험 (Stargaze Explorer)'(이하 '본 앱')을 이용하시는 사용자분들의 개인정보 보호 및 권리를 준수하기 위해 작성되었습니다.</p>
+
+      <h2>1. 개인정보의 수집 및 이용 목적</h2>
+      <p>본 앱은 기본적으로 사용자의 민감한 개인식별 정보를 서버에 강제 수집하거나 저장하지 않는 <strong>로컬 우선(Local-First)</strong> 애플리케이션입니다.</p>
+      <ul>
+        <li><strong>카메라 권한 (Camera Permission)</strong>: 실시간 AR 별자리 천도 기능 구동을 위해서만 사용되며, 카메라 화면을 녹화하거나 외부 서버로 절대 송신하지 않습니다.</li>
+        <li><strong>위치 권한 (Location Permission)</strong>: 사용자의 현재 GPS 위치를 감지하여 해당 관측지의 구름/기상 지표를 실시간 Open API(Open-Meteo)에서 호출하기 위한 정밀 좌표 계산용으로만 활용되며, 서버에 기록을 유출하지 않습니다.</li>
+        <li><strong>기록 데이터 (Room DB)</strong>: 사용자가 직접 작성하는 관측 로그 및 사진(또는 우주 실루엣)은 오직 사용자의 단말기 내부 Room 데이터베이스에만 안전하게 암호화 보존됩니다.</li>
+      </ul>
+
+      <h2>2. 개인정보의 제공 및 위탁</h2>
+      <p>본 앱은 어떠한 경우에도 사용자의 사전 동의 없이 개인정보를 제3자에게 임의로 제공하거나 위탁하지 않습니다.</p>
+
+      <h2>3. 쿠키 및 광고 식별자 정책</h2>
+      <p>본 앱은 어떠한 외부 타겟팅 광고 SDK(AdMob 등)나 사용자 추적 분석기(Firebase Analytics 등)도 장착하지 않은 순수 유틸리티 환경을 보장합니다.</p>
+
+      <h2>4. 개인정보의 안전성 확보 조치</h2>
+      <p>사용자의 모든 데이터는 로컬 저장공간에 격리 보관되며, 사용자가 자발적으로 파일 백업이나 동기화 행위를 진행하기 전에는 안전하게 기기 샌드박스 내에서 보호됩니다.</p>
+    </div>
+
+    <!-- ENGLISH POLICY -->
+    <div id="policy-en" style="display: none;">
+      <h1>Privacy Policy</h1>
+      <p>This Privacy Policy explains how 'Stargaze Explorer' (referred to as 'the App') protects and respects the privacy of its users.</p>
+
+      <h2>1. Collection and Use of Personal Information</h2>
+      <p>The App is a <strong>Local-First</strong> utility and does not store or collect sensitive personally identifiable information (PII) on remote servers.</p>
+      <ul>
+        <li><strong>Camera Permission</strong>: Used exclusively to render the real-time AR star map overlay. The camera stream is processed entirely on the local device and is never recorded or transmitted to any server.</li>
+        <li><strong>Location Permission</strong>: Utilized dynamically to fetch live stargazing weather (clouds, temperature, humidity) for your current observation spot from open-source weather APIs (Open-Meteo). Your coordinate history is never tracked or logged remotely.</li>
+        <li><strong>Local Logs (Room DB)</strong>: Your custom observation journals, starlight reviews, and capture representations are persisted entirely in your device's isolated local storage.</li>
+      </ul>
+
+      <h2>2. Third-Party Sharing</h2>
+      <p>We do not share, sell, or lease any of your private or local data to third-party organizations.</p>
+
+      <h2>3. Cookies and Advertising Identifiers</h2>
+      <p>The App is completely ad-free and tracker-free. We do not incorporate any advertising SDKs (e.g., AdMob) or tracking suites (e.g., Firebase Analytics).</p>
+
+      <h2>4. Data Protection Measures</h2>
+      <p>All created logs and journals are securely stored within the local application sandbox. You retain full ownership and absolute control over your stargazing archives.</p>
+    </div>
+
+    <div class="footer">
+      © 2026 Sitdory (jeiel85). Developed in compliance with Google Play Store closed testing rules.
+    </div>
+  </div>
+
+  <script>
+    let isKo = true;
+    function toggleLanguage() {
+      isKo = !isKo;
+      document.getElementById('policy-ko').style.display = isKo ? 'block' : 'none';
+      document.getElementById('policy-en').style.display = isKo ? 'none' : 'block';
+      document.querySelector('.lang-btn').textContent = isKo ? 'English Policy' : '한국어 방침';
+    }
+  </script>
+</body>
+</html>

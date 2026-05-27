@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별자리 탐험 (Stargaze Explorer) - 실시간 AR 천체 관측 동반자</title>
+  <meta name="description" content="실시간 자이로 센서/카메라 연동 AR 탐험, Gemini 3.5 Flash 기반 지능형 관측 코치, 나만의 관측 도감 및 사진 일기장, 전국의 별빛 모험가들과 실시간 하늘 상태 소통하는 스마트 천체 관측 앱">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jeiel85.github.io/stargaze-explorer-android/">
+  <meta property="og:title" content="별자리 탐험 (Stargaze Explorer)">
+  <meta property="og:description" content="실시간 AR 천체 지도와 인공지능 기상 분석으로 만나는 내 손안의 우주 정원">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=1200&auto=format&fit=crop&q=80">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --space-black: #03030F;
+      --cosmic-blue: #0A0E29;
+      --cosmic-slate: #121B45;
+      --cosmic-cyan: #5CFFFD;
+      --starlight-gold: #FFE259;
+      --nebula-purple: #7F5CFF;
+      --nebula-pink: #FF5C8A;
+      --star-white: #FFFFFF;
+      --text-secondary: #B0B7D6;
+      --glass-bg: rgba(10, 14, 41, 0.65);
+      --glass-border: rgba(92, 255, 253, 0.15);
+      --glass-shadow: 0 8px 32px 0 rgba(3, 3, 15, 0.37);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+      background-color: var(--space-black);
+      color: var(--star-white);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(127, 92, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 92, 138, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(92, 255, 253, 0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+
+    /* Stardust particles simulation */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+      background-size: 550px 550px, 350px 350px, 250px 250px;
+      background-position: 0 0, 40px 60px, 130px 270px;
+      opacity: 0.25;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: rgba(3, 3, 15, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+    }
+
+    .nav-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--star-white);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--cosmic-cyan), var(--nebula-purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 15px rgba(92, 255, 253, 0.3);
+    }
+
+    .logo-text span {
+      background: linear-gradient(135deg, var(--cosmic-cyan), var(--nebula-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--cosmic-cyan);
+    }
+
+    .lang-switch {
+      background: var(--cosmic-slate);
+      color: var(--star-white);
+      border: 1px solid var(--glass-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .lang-switch:hover {
+      border-color: var(--cosmic-cyan);
+      box-shadow: 0 0 10px rgba(92, 255, 253, 0.2);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 180px 0 100px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 60px;
+    }
+
+    .hero-content {
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(92, 255, 253, 0.1);
+      border: 1px solid var(--glass-border);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--cosmic-cyan);
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+      font-size: 3.2rem;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, var(--cosmic-cyan), var(--starlight-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      font-weight: 400;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cosmic-cyan), var(--nebula-purple));
+      color: var(--space-black);
+      box-shadow: 0 8px 25px rgba(92, 255, 253, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(92, 255, 253, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--cosmic-slate);
+      color: var(--star-white);
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      background: rgba(18, 27, 69, 0.8);
+      border-color: var(--cosmic-cyan);
+    }
+
+    .hero-visual {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .glow-circle {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(127, 92, 255, 0.2) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+
+    .hero-mockup {
+      width: 320px;
+      height: auto;
+      border-radius: 40px;
+      border: 8px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 100px rgba(3, 3, 15, 0.8), 0 0 40px rgba(92, 255, 253, 0.15);
+      background: var(--cosmic-blue);
+      aspect-ratio: 9 / 19.5;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    /* Mockup internal components to simulate Premium AR View */
+    .mockup-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 10px;
+    }
+    .mockup-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .mockup-star-map {
+      width: 100%;
+      height: 150px;
+      background-image: 
+        radial-gradient(circle, rgba(92,255,253,0.3) 1px, transparent 2px),
+        radial-gradient(circle, rgba(255,226,89,0.4) 2px, transparent 4px);
+      background-size: 40px 40px, 80px 80px;
+      position: relative;
+      border-radius: 12px;
+      border: 1px dashed rgba(92, 255, 253, 0.2);
+    }
+    .mockup-constellation {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: var(--cosmic-cyan);
+      font-size: 0.8rem;
+      text-shadow: 0 0 10px rgba(92, 255, 253, 0.6);
+    }
+    .mockup-constellation::before {
+      content: "🌌 오리온자리";
+    }
+    .mockup-ai-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 10px;
+      width: 100%;
+      font-size: 0.7rem;
+      margin-top: 15px;
+      text-align: left;
+    }
+    .mockup-ai-title {
+      font-weight: bold;
+      color: var(--starlight-gold);
+      margin-bottom: 4px;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 60px auto;
+    }
+
+    .section-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .section-title span {
+      background: linear-gradient(135deg, var(--cosmic-cyan), var(--nebula-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--cosmic-cyan);
+      box-shadow: 0 12px 40px rgba(92, 255, 253, 0.1);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: rgba(92, 255, 253, 0.08);
+      border: 1px solid rgba(92, 255, 253, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--cosmic-cyan);
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(92, 255, 253, 0.1);
+    }
+
+    .feature-card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .feature-card-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Setup Section */
+    .setup {
+      padding: 100px 0;
+      background: rgba(10, 14, 41, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .setup-steps {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .step-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50px;
+      left: 20px;
+      width: 2px;
+      height: calc(100% - 10px);
+      background: linear-gradient(to bottom, var(--cosmic-cyan), transparent);
+    }
+
+    .step-num {
+      width: 42px;
+      height: 42px;
+      background: var(--cosmic-slate);
+      border: 2px solid var(--cosmic-cyan);
+      color: var(--cosmic-cyan);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px rgba(92, 255, 253, 0.3);
+    }
+
+    .step-content {
+      padding-top: 6px;
+    }
+
+    .step-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .code-block {
+      background: rgba(3, 3, 15, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: 'Courier New', Courier, monospace;
+      padding: 14px 20px;
+      border-radius: 8px;
+      color: var(--cosmic-cyan);
+      margin-top: 12px;
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+
+    /* Footer */
+    footer {
+      padding: 60px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      background-color: var(--space-black);
+    }
+
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .footer-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--cosmic-cyan);
+    }
+
+    .copyright {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.8rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+      .hero {
+        flex-direction: column;
+        padding-top: 140px;
+        text-align: center;
+        gap: 40px;
+      }
+      .hero-content {
+        max-width: 100%;
+      }
+      .cta-group {
+        justify-content: center;
+      }
+      .hero-title {
+        font-size: 2.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="#" class="logo">
+        <div class="logo-icon">🌌</div>
+        <div class="logo-text">별자리 <span>탐험</span></div>
+      </a>
+      <nav style="display: flex; align-items: center; gap: 24px;">
+        <ul class="nav-links">
+          <li><a href="#features" data-i18n="nav-features">주요 기능</a></li>
+          <li><a href="#setup" data-i18n="nav-setup">시작하기</a></li>
+          <li><a href="privacy.html" data-i18n="nav-privacy">개인정보 처리방침</a></li>
+        </ul>
+        <button class="lang-switch" onclick="toggleLanguage()">EN</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="container hero">
+    <div class="hero-content">
+      <div class="badge">
+        <span>🌌</span> <span data-i18n="hero-badge">Google AI Studio 공식 템플릿 기반 고도화 완료</span>
+      </div>
+      <h1 class="hero-title" data-i18n="hero-title">
+        밤하늘을 조준하다,<br>내 손안의 <span>우주 정원</span>
+      </h1>
+      <p class="hero-desc" data-i18n="hero-desc">
+        실시간 자이로 센서/CameraX 연동 AR 별자리 지도와 차세대 Gemini 3.5 Flash 날씨 특보 코치, 그리고 Room DB에 쌓여가는 나만의 영롱한 사진 관측 도감을 지금 바로 만나보세요.
+      </p>
+      <div class="cta-group">
+        <a href="https://github.com/jeiel85/stargaze-explorer-android" class="btn btn-primary">
+          <span>🐙</span> <span data-i18n="cta-git">GitHub 저장소</span>
+        </a>
+        <a href="#features" class="btn btn-secondary" data-i18n="cta-more">기능 자세히 보기</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="glow-circle"></div>
+      <div class="hero-mockup">
+        <div class="mockup-header">
+          <span>Stargaze Explorer AR</span>
+          <span>10:36 PM</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-star-map">
+            <div class="mockup-constellation"></div>
+          </div>
+          <div class="mockup-ai-card">
+            <div class="mockup-ai-title">✨ Gemini 인공지능 분석 가이드</div>
+            <p style="color: var(--text-secondary); line-height: 1.3;">관측 지수 S+ 최상의 은하수 밤하늘입니다! 거문고자리와 백조자리가 선명하며, 기온이 선선하므로 가벼운 자켓 한 장을 덧입어 탐험해 보세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="container features">
+    <div class="section-header">
+      <h2 class="section-title"><span data-i18n="features-title">주요 프리미엄 기능</span></h2>
+      <p class="section-desc" data-i18n="features-desc">최첨단 모바일 그래픽스 및 천문 지능이 결합한 완전히 새로운 차원의 별자리 관측 라이프</p>
+    </div>
+    <div class="features-grid">
+      
+      <div class="feature-card">
+        <div class="feature-icon">🧭</div>
+        <h3 class="feature-card-title" data-i18n="f1-title">실시간 천체 AR 탐험 지도</h3>
+        <p class="feature-card-desc" data-i18n="f1-desc">모바일 자이로/나침반 센서와 CameraX 라이브 뷰파인더를 연동하여, 카메라 렌즈가 비추는 밤하늘에 은하 좌표계와 화려한 신화 속 별자리 기하선들을 정교하게 결합 오버레이합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3 class="feature-card-title" data-i18n="f2-title">Gemini 3.5 Flash 천문 코치</h3>
+        <p class="feature-card-desc" data-i18n="f2-desc">유효한 API 키가 연동되면 Gemini 3.5 Flash가 실시간 기온/구름/습도를 종합하여 감성적인 최적 관측 조언과 방한 대책을 생성합니다. 키가 없거나 오프라인일 때도 탄력적으로 로컬 가이드로 즉시 폴백합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📓</div>
+        <h3 class="feature-card-title" data-i18n="f3-title">Room 기반 관측 일기장 & 도감</h3>
+        <p class="feature-card-desc" data-i18n="f3-desc">내가 목격한 별자리 관측 로그와 소중한 밤하늘 현장 사진을 로컬 Room DB에 영구 보존합니다. 일기를 남길 때마다 도감 상의 별자리가 금빛 카드로 해제되며 성취감을 선물합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3 class="feature-card-title" data-i18n="f4-title">실시간 관측가 공유 커뮤니티</h3>
+        <p class="feature-card-desc" data-i18n="f4-desc">강릉 안반데기, 가평 화악산, 양평 벗고개 등 대한민국 유명 관측 명소의 실시간 날씨 인덱스와 전국의 모험가들이 업로드한 은하 사진들을 한눈에 공유하고 좋아요와 댓글로 소통합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3 class="feature-card-title" data-i18n="f5-title">대유성우 및 월식 특보 알림</h3>
+        <p class="feature-card-desc" data-i18n="f5-desc">페르세우스 유성우 극대기나 블러드문 개기월식 등 놓쳐선 안 될 메이저 우주 일정들을 사전 터치 한 번으로 알람 예약하고, 피크 타임 기상 상황에 맞춰 지능형 푸시 특보를 수령합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-card-title" data-i18n="f6-title">보안 및 로컬 오프라인 최우선</h3>
+        <p class="feature-card-desc" data-i18n="f6-desc">사용자의 민감한 개인정보나 관측 일기, 사진 데이터는 로컬 단말기에만 암호화 보관되며, 원격 클라우드 수동 동기화를 통해서만 안전하게 백업 통제됩니다.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Setup Section -->
+  <section id="setup" class="setup">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title"><span data-i18n="setup-title">로컬 로드맵 & 시작하기</span></h2>
+        <p class="section-desc" data-i18n="setup-desc">단 3단계 만으로 나만의 천체 망원경 앱을 빌드하고 실행하세요</p>
+      </div>
+      <div class="setup-steps">
+        
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4 class="step-title" data-i18n="s1-title">저장소 복제 및 임포트</h4>
+            <p class="step-desc" data-i18n="s1-desc">Android Studio를 구동한 뒤 Git 저장소를 복제하거나 임포트합니다.</p>
+            <div class="code-block">git clone https://github.com/jeiel85/stargaze-explorer-android.git</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4 class="step-title" data-i18n="s2-title">인공지능 Secrets 환경 변수 주입</h4>
+            <p class="step-desc" data-i18n="s2-desc">프로젝트 루트 경로에 .env 파일을 생성하고 본인의 Google AI Studio API 키를 주입합니다. (키가 없으면 오프라인 탄력 모드로 작동합니다.)</p>
+            <div class="code-block">GEMINI_API_KEY=AIzaSy...YourActualGeminiKey...</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4 class="step-title" data-i18n="s3-title">원스톱 릴리즈 빌드 및 데스크톱 추출</h4>
+            <p class="step-desc" data-i18n="s3-desc">Gradle을 통해 App Bundle을 컴파일하고, 전용 우회 릴리즈 스크립트를 통해 Windows 바탕화면에 이식합니다.</p>
+            <div class="code-block">.\gradlew.bat bundleRelease<br>powershell -ExecutionPolicy Bypass -File scripts\export-play-store-release.ps1</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-brand">🌌 별자리 탐험 — Stargaze Explorer</div>
+      <p class="footer-desc" data-i18n="footer-desc">실시간 자이로 센서 및 모바일 카메라 기반 천체 관측 어시스턴트 앱으로, Google AI Studio 공식 Android 템플릿 수출판을 프리미엄 버전으로 고도화한 독립 프로젝트입니다.</p>
+      <ul class="footer-links">
+        <li><a href="https://github.com/jeiel85/stargaze-explorer-android">GitHub</a></li>
+        <li><a href="privacy.html" data-i18n="nav-privacy">개인정보 처리방침</a></li>
+      </ul>
+      <p class="copyright">© 2026 Sitdory (jeiel85). Developed with Google DeepMind Advanced Agentic Coding rules. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Translation Engine (Korean / English) -->
+  <script>
+    const translations = {
+      ko: {
+        "nav-features": "주요 기능",
+        "nav-setup": "시작하기",
+        "nav-privacy": "개인정보 처리방침",
+        "hero-badge": "Google AI Studio 공식 템플릿 기반 고도화 완료",
+        "hero-title": "밤하늘을 조준하다,<br>내 손안의 <span>우주 정원</span>",
+        "hero-desc": "실시간 자이로 센서/CameraX 연동 AR 별자리 지도와 차세대 Gemini 3.5 Flash 날씨 특보 코치, 그리고 Room DB에 쌓여가는 나만의 영롱한 사진 관측 도감을 지금 바로 만나보세요.",
+        "cta-git": "GitHub 저장소",
+        "cta-more": "기능 자세히 보기",
+        "features-title": "주요 프리미엄 기능",
+        "features-desc": "최첨단 모바일 그래픽스 및 천문 지능이 결합한 완전히 새로운 차원의 별자리 관측 라이프",
+        "f1-title": "실시간 천체 AR 탐험 지도",
+        "f1-desc": "모바일 자이로/나침반 센서와 CameraX 라이브 뷰파인더를 연동하여, 카메라 렌즈가 비추는 밤하늘에 은하 좌표계와 화려한 신화 속 별자리 기하선들을 정교하게 결합 오버레이합니다.",
+        "f2-title": "Gemini 3.5 Flash 천문 코치",
+        "f2-desc": "유효한 API 키가 연동되면 Gemini 3.5 Flash가 실시간 기온/구름/습도를 종합하여 감성적인 최적 관측 조언과 방한 대책을 생성합니다. 키가 없거나 오프라인일 때도 탄력적으로 로컬 가이드로 즉시 폴백합니다.",
+        "f3-title": "Room 기반 관측 일기장 & 도감",
+        "f3-desc": "내가 목격한 별자리 관측 로그와 소중한 밤하늘 현장 사진을 로컬 Room DB에 영구 보존합니다. 일기를 남길 때마다 도감 상의 별자리가 금빛 카드로 해제되며 성취감을 선물합니다.",
+        "f4-title": "실시간 관측가 공유 커뮤니티",
+        "f4-desc": "강릉 안반데기, 가평 화악산, 양평 벗고개 등 대한민국 유명 관측 명소의 실시간 날씨 인덱스와 전국의 모험가들이 업로드한 은하 사진들을 한눈에 공유하고 좋아요와 댓글로 소통합니다.",
+        "f5-title": "대유성우 및 월식 특보 알림",
+        "f5-desc": "페르세우스 유성우 극대기나 블러드문 개기월식 등 놓쳐선 안 될 메이저 우주 일정들을 사전 터치 한 번으로 알람 예약하고, 피크 타임 기상 상황에 맞춰 지능형 푸시 특보를 수령합니다.",
+        "f6-title": "보안 및 로컬 오프라인 최우선",
+        "f6-desc": "사용자의 민감한 개인정보나 관측 일기, 사진 데이터는 로컬 단말기에만 암호화 보관되며, 원격 클라우드 수동 동기화를 통해서만 안전하게 백업 통제됩니다.",
+        "setup-title": "로컬 로드맵 & 시작하기",
+        "setup-desc": "단 3단계 만으로 나만의 천체 망원경 앱을 빌드하고 실행하세요",
+        "s1-title": "저장소 복제 및 임포트",
+        "s1-desc": "Android Studio를 구동한 뒤 Git 저장소를 복제하거나 임포트합니다.",
+        "s2-title": "인공지능 Secrets 환경 변수 주입",
+        "s2-desc": "프로젝트 루트 경로에 .env 파일을 생성하고 본인의 Google AI Studio API 키를 주입합니다. (키가 없으면 오프라인 탄력 모드로 작동합니다.)",
+        "s3-title": "원스톱 릴리즈 빌드 및 데스크톱 추출",
+        "s3-desc": "Gradle을 통해 App Bundle을 컴파일하고, 전용 우회 릴리즈 스크립트를 통해 Windows 바탕화면에 이식합니다.",
+        "footer-desc": "실시간 자이로 센서 및 모바일 카메라 기반 천체 관측 어시스턴트 앱으로, Google AI Studio 공식 Android 템플릿 수출판을 프리미엄 버전으로 고도화한 독립 프로젝트입니다."
+      },
+      en: {
+        "nav-features": "Features",
+        "nav-setup": "Get Started",
+        "nav-privacy": "Privacy Policy",
+        "hero-badge": "Upgraded from Google AI Studio Official Android Export",
+        "hero-title": "Aim at the Sky,<br>Your Pocket <span>Cosmic Garden</span>",
+        "hero-desc": "Experience a real-time gyroscope/CameraX AR star map, live weather alerts driven by Gemini 3.5 Flash, and Room DB-backed photo journals. Explore the cosmos tonight.",
+        "cta-git": "GitHub Repo",
+        "cta-more": "Explore Features",
+        "features-title": "Premium Core Features",
+        "features-desc": "Next-generation mobile graphics and astronomical intelligence combined for stellar explorers.",
+        "f1-title": "Real-time Celestial AR Map",
+        "f1-desc": "Integrates device gyroscope/compass sensors with CameraX live viewfinder to overlay astronomical grids and gorgeous mythological figures directly onto the real-night sky.",
+        "f2-title": "Gemini 3.5 Flash Astro-Coach",
+        "f2-desc": "Gathers live local temperature/clouds/humidity via open APIs. Generates warm personalized outdoor clothing tips. Resiliently falls back to local astronomical rules if offline.",
+        "f3-title": "Room DB-backed Journal & Catalog",
+        "f3-desc": "Persists custom observation logs and starlight captures onto local storage. Unlocks celestial items in your interactive encyclopedia as golden cards with accomplishments.",
+        "f4-title": "Active Stargazers Community Feed",
+        "f4-desc": "Check live outdoor indices for Korea's top 4 high-altitude dark sites. Share beautiful galaxy illustrations, exchange comments, and enjoy likes with stargazers nationwide.",
+        "f5-title": "Astronomical Events Push Warnings",
+        "f5-desc": "Subscribe to peak schedules of major meteor showers or total lunar eclipses with a single tap. Receive smart push notifications optimized for local viewing timing.",
+        "f6-title": "Local-First Privacy & Backup",
+        "f6-desc": "Your sensitive journals, logs, and photos are encrypted and stored 100% locally. Back up and sync manually to remote clouds only when explicitly requested.",
+        "setup-title": "Stargazing Roadmap",
+        "setup-desc": "Build and run your custom telescope companion in just 3 quick steps.",
+        "s1-title": "Clone & Import Repo",
+        "s1-desc": "Open Android Studio and import this project directly from our Git repository.",
+        "s2-title": "Inject AI Secrets Environment",
+        "s2-desc": "Create a .env file at the root path and set your own Gemini API key. (Resiliently runs offline if omitted.)",
+        "s3-title": "One-Stop Compile & Desktop Export",
+        "s3-desc": "Compile Android App Bundle (AAB) via Gradle, and run our bypass release script to export it directly to your Windows desktop.",
+        "footer-desc": "A premium gyroscope and CameraX-driven celestial stargazing assistant app, independently upgraded and enhanced from the Google AI Studio Android Template Export."
+      }
+    };
+
+    let currentLang = 'ko';
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'ko' ? 'en' : 'ko';
+      document.querySelector('.lang-switch').textContent = currentLang === 'ko' ? 'EN' : 'KO';
+      
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) {
+          el.innerHTML = translations[currentLang][key];
+        }
+      });
+    }
+  </script>
+</body>
+</html>
