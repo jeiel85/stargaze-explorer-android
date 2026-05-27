@@ -179,11 +179,64 @@ object AstronomicalEventManager {
  */
 object GeminiApiClient {
 
+    private const val BASE_URL = "https://generativelanguage.googleapis.com/"
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
+
+    private val service: GeminiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(GeminiService::class.java)
+    }
+
     suspend fun queryGeminiRecommendation(
         locationName: String,
         temperature: Double,
         cloudCover: Double
     ): String {
+        // Read key from BuildConfig
+        val apiKey = try {
+            com.example.BuildConfig.GEMINI_API_KEY
+        } catch (e: Exception) {
+            ""
+        }
+
+        val isValidKey = apiKey.isNotEmpty() &&
+                !apiKey.equals("MY_GEMINI_API_KEY", ignoreCase = true) &&
+                !apiKey.equals("YOUR_GEMINI_API_KEY", ignoreCase = true) &&
+                !apiKey.contains("PLACEHOLDER", ignoreCase = true)
+
+        if (isValidKey) {
+            try {
+                val prompt = """
+                    너는 별 관측 천문 전문가다. 현재 위치인 '$locationName'의 기상 정보(기온: ${temperature}°C, 구름 양: ${cloudCover}%)에 맞춰, 한국(서울 기준)에서 현재 계절에 관측 가능한 최고의 별자리와 천문 관측 가이드를 아주 감성적이고 시적이며 직관적인 한국어 레이아웃으로 3-4문장짜리 조언으로 제공해줘. 그리고 만약 기온이 낮으면 방한 대책을, 구름이 많으면 가상 AR 지도를 이용하라는 등의 실질적인 꿀팁도 포함해줘.
+                """.trimIndent()
+
+                val request = GeminiRequest(
+                    contents = listOf(
+                        GeminiContent(
+                            parts = listOf(GeminiPart(text = prompt))
+                        )
+                    )
+                )
+
+                val response = service.generateContent(apiKey, request)
+                val text = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                if (!text.isNullOrEmpty()) {
+                    return text.trim()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // API call failed, fall back silently to the offline expert recommendation system below
+            }
+        }
+
         // Intentionally simulate a brief thinking effect (200ms) to maintain realistic AI depth feel
         kotlinx.coroutines.delay(200)
 

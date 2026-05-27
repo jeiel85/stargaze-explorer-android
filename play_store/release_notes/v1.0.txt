@@ -1,0 +1,14 @@
+<ko-KR>
+- 실시간 자이로 센서 및 CameraX 기반의 천체 AR 별자리 지도 탑재!
+- 인공지능 Gemini 3.5 Flash 천체 코치 가이드 추가 (실시간 위성 구름/기상 자동 분석)
+- 대한민국 4대 은하수 관측 명소 날씨 연동 기능 제공
+- Room DB 기반 사진 관측 일기장 및 오프라인 천문 도감 수집 시스템 구현
+- 지능형 클라우드 동기화 및 22:00 고정 관측 예보 알람 기능 오픈
+</ko-KR>
+<en-US>
+- Real-time celestial AR constellation star map powered by CameraX!
+- Smart Gemini 3.5 Flash Astronomical Coach (live cloud/temp meteorologist)
+- Interactive weather forecasts for Korea's top 4 stargazing hot spots
+- Room DB-backed photo stargazing journal and unlockable offline encyclopedia
+- Intelligent cloud synchronization & 10:00 PM nightly stargazing alerts
+</en-US>
