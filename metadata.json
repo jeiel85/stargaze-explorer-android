@@ -1,0 +1,6 @@
+{
+  "name": "별자리 탐험",
+  "description": "실시간 별자리 탐색, 자이로/카메라 연동 AR 탐험, 나만의 관측 도감 및 사진 일기장, 커뮤니티 공유 및 가볼 만한 관측 장소 가이드.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
